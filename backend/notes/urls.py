@@ -7,5 +7,7 @@ from . import views
 urlpatterns = [
     path("chat/", views.index, name="index"),
     path("chat/<str:room_name>/", views.room, name="room"),
-    path("edits/", views.viewedits, name="room"),
+    path("edits/", views.viewedits, name="viewedits"),
+    path("note/<int:note_id>", views.note_to_print, name="note_to_print"),
+    path("note/<int:note_id>/printed", views.set_printed, name="set_printed"),
 ]

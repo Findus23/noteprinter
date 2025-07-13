@@ -1,9 +1,12 @@
 import subprocess
 import tempfile
+import time
 from pathlib import Path
 
 import jinja2
 import pyvips
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 from django.core.files.base import File
 from django.db import transaction
 
@@ -94,4 +97,7 @@ class NoteRenderer:
                     )
                     noteimage.save()
                 self.note.image = noteimage
-                self.note.save(just_setting_image=True)
+                self.note.save(skip_notify=True)
+        print("notify")
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)("printer", {"type": "new.print", "note_id": self.note.id})

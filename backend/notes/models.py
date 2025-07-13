@@ -15,9 +15,9 @@ class Note(models.Model):
         return self.text[:50]
 
     def save(self, *args, **kwargs):
-        just_setting_image = kwargs.pop("just_setting_image", False)
+        skip_notify = kwargs.pop("skip_notify", False)
         super().save(*args, **kwargs)
-        if just_setting_image:
+        if skip_notify:
             return
         channel_layer = get_channel_layer()
         async_to_sync(channel_layer.group_send)("saves", {"type": "forward.edit", "message": f"hello {self.text}"})

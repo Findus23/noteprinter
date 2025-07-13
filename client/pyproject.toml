@@ -1,0 +1,20 @@
+[project]
+name = "noteprinter-client"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Lukas Winkler",email = "git@lw1.at"}
+]
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "websockets (>=15.0.1,<16.0.0)",
+    "httpx (>=0.28.1,<0.29.0)",
+    "python-escpos[usb] (>=3.1,<4.0)",
+    "pillow (>=11.3.0,<12.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

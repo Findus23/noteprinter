@@ -64,12 +64,29 @@ class SaveConsumer(WebsocketConsumer):
             "saves", self.channel_name
         )
 
-    # Receive message from room group
     def forward_edit(self, event):
         message = event["message"]
 
         # Send message to WebSocket
         self.send(text_data=json.dumps({"message": message}))
+
+
+
+class PrinterConsumer(WebsocketConsumer):
+    def connect(self):
+        async_to_sync(self.channel_layer.group_add)(
+            "printer", self.channel_name
+        )
+        self.accept()
+
+    def disconnect(self, close_code):
+        async_to_sync(self.channel_layer.group_discard)(
+            "printer", self.channel_name
+        )
+
+    def new_print(self, event):
+        print(event)
+        self.send(text_data=json.dumps({"message": "new_print","note_id": event["note_id"]}))
 
 
 class RenderConsumer(SyncConsumer):
