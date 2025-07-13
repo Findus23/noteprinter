@@ -6,3 +6,6 @@ def index(request):
 
 def room(request, room_name):
     return render(request, "notes/room.html", {"room_name": room_name})
+
+def viewedits(request):
+    return render(request, "notes/viewedits.html")

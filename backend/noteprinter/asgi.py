@@ -14,7 +14,7 @@ from channels.routing import ProtocolTypeRouter, URLRouter, ChannelNameRouter
 from channels.security.websocket import AllowedHostsOriginValidator
 from django.core.asgi import get_asgi_application
 
-from notes.consumers import PrintConsumer
+from notes.consumers import PrintConsumer, RenderConsumer
 from notes.routing import websocket_urlpatterns
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "noteprinter.settings")
@@ -28,6 +28,7 @@ application = ProtocolTypeRouter({
     ),
     "channel": ChannelNameRouter({
         "thumbnails-generate": PrintConsumer.as_asgi(),
+        "render-note": RenderConsumer.as_asgi(),
     }),
     # Just HTTP for now. (We can add other protocols later.)
 })

@@ -14,11 +14,18 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-
+from debug_toolbar.toolbar import debug_toolbar_urls
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 
-urlpatterns = [
-    path("admin/", admin.site.urls),
-    path("chat/", include("notes.urls")),
-]
+from .settings import MEDIA_URL, MEDIA_ROOT
+
+urlpatterns = (
+        [
+            path("admin/", admin.site.urls),
+            path("", include("notes.urls")),
+        ]
+        + debug_toolbar_urls()
+        + static(MEDIA_URL, document_root=MEDIA_ROOT)
+)

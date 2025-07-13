@@ -1,0 +1,32 @@
+% !TeX program = lualatex
+\documentclass[preview,border=0]{standalone}
+
+\usepackage{fontspec}
+\usepackage{microtype}
+\usepackage[T1]{fontenc}
+
+
+\setmainfont{Inter}[
+  Ligatures = Discretionary,
+  Numbers = Lining,
+  Contextuals=WordInitial,
+  Renderer = OpenType
+]
+
+\usepackage{geometry}
+\geometry{paperwidth=250pt, textwidth=250pt, paperheight=\dimexpr\textheight+0.1pt\relax}
+
+
+\begin{document}
+\centering
+\rule{0pt}{0pt}
+
+\textbf{\Huge \VAR{note.text}}
+
+%% \\[1em]
+%% \LARGE A paragraph of text using InterRegular—with ligatures like ffi, fl, fi 1/20 and proper kerning.\\[1em]
+%% \framebox[\linewidth][c]{\parbox{0.9\linewidth}{
+%%   Text inside a box, also wrapped and centered.
+%% }}
+
+\end{document}
