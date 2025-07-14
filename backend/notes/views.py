@@ -7,7 +7,7 @@ from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
-from notes.models import Note
+from notes.models import Note, APIToken
 
 
 @login_required
@@ -15,7 +15,7 @@ def index(request):
     return render(request, "notes/index.html")
 
 
-@login_required
+# @login_required
 def room(request, room_name):
     return render(request, "notes/room.html", {"room_name": room_name})
 
@@ -50,3 +50,9 @@ def set_printed(request, note_id):
     note.printed_at = now
     note.save(skip_notify=True)
     return JsonResponse({"message": "success"})
+
+
+@login_required
+def my_token_view(request):
+    token, _ = APIToken.objects.get_or_create(user=request.user)
+    return JsonResponse({ "token": token.key })

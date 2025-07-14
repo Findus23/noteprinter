@@ -1,6 +1,6 @@
 import json
-import time
 
+import time
 from asgiref.sync import async_to_sync
 from channels.consumer import SyncConsumer
 from channels.generic.websocket import WebsocketConsumer
@@ -10,7 +10,14 @@ from notes.render_image import NoteRenderer
 
 
 class ChatConsumer(WebsocketConsumer):
+    was_connected = False
+
     def connect(self):
+        self.user = self.scope["user"]
+        if not self.user.is_authenticated:
+            self.close()
+            return
+        self.was_connected = True
         self.room_name = self.scope["url_route"]["kwargs"]["room_name"]
         self.room_group_name = f"chat_{self.room_name}"
 
@@ -22,9 +29,10 @@ class ChatConsumer(WebsocketConsumer):
         self.accept()
 
     def disconnect(self, close_code):
-        async_to_sync(self.channel_layer.group_discard)(
-            self.room_group_name, self.channel_name
-        )
+        if self.was_connected:
+            async_to_sync(self.channel_layer.group_discard)(
+                self.room_group_name, self.channel_name
+            )
 
     def receive(self, text_data):
         text_data_json = json.loads(text_data)
@@ -71,22 +79,32 @@ class SaveConsumer(WebsocketConsumer):
         self.send(text_data=json.dumps({"message": message}))
 
 
-
 class PrinterConsumer(WebsocketConsumer):
+    def __init__(self, *args, **kwargs):
+        super().__init__(args, kwargs)
+        self.user = None
+        self.was_connected = False
+
     def connect(self):
+        self.user = self.scope["user"]
+        print(self.user)
+        if not self.user.is_authenticated:
+            self.close()
+            return
         async_to_sync(self.channel_layer.group_add)(
             "printer", self.channel_name
         )
         self.accept()
 
     def disconnect(self, close_code):
-        async_to_sync(self.channel_layer.group_discard)(
-            "printer", self.channel_name
-        )
+        if self.was_connected:
+            async_to_sync(self.channel_layer.group_discard)(
+                "printer", self.channel_name
+            )
 
     def new_print(self, event):
         print(event)
-        self.send(text_data=json.dumps({"message": "new_print","note_id": event["note_id"]}))
+        self.send(text_data=json.dumps({"message": "new_print", "note_id": event["note_id"]}))
 
 
 class RenderConsumer(SyncConsumer):

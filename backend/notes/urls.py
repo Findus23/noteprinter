@@ -5,6 +5,7 @@ from . import views
 
 
 urlpatterns = [
+    path("tokens/", views.my_token_view, name="my_token_view"),
     path("chat/", views.index, name="index"),
     path("chat/<str:room_name>/", views.room, name="room"),
     path("edits/", views.viewedits, name="viewedits"),

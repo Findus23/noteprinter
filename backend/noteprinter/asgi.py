@@ -9,6 +9,8 @@ https://docs.djangoproject.com/en/5.2/howto/deployment/asgi/
 
 import os
 
+from notes.middleware import TokenAuthMiddleware, TokenAuthMiddlewareAsync
+
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "noteprinter.settings")
 
 from django.core.asgi import get_asgi_application
@@ -27,7 +29,7 @@ from notes.routing import websocket_urlpatterns
 application = ProtocolTypeRouter({
     "http": django_asgi_app,
     "websocket": AllowedHostsOriginValidator(
-        AuthMiddlewareStack(URLRouter(websocket_urlpatterns))
+        TokenAuthMiddlewareAsync(AuthMiddlewareStack(URLRouter(websocket_urlpatterns)))
     ),
     "channel": ChannelNameRouter({
         "thumbnails-generate": PrintConsumer.as_asgi(),

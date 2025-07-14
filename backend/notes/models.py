@@ -1,5 +1,9 @@
+import os
+
+import binascii
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
+from django.conf import settings
 from django.db import models
 from django.utils.html import format_html
 
@@ -44,3 +48,17 @@ class NoteImage(models.Model):
             '<img src="{}">',
             self.image.url,
         )
+
+
+class APIToken(models.Model):
+    key = models.CharField(max_length=64, primary_key=True)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        if not self.key:
+            self.key = binascii.hexlify(os.urandom(20)).decode()
+        return super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.user} → {self.key}"
