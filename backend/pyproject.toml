@@ -16,7 +16,7 @@ dependencies = [
     "jinja2 (>=3.1.6,<4.0.0)",
     "pyvips (>=3.0.0,<4.0.0)",
     "pillow (>=11.3.0,<12.0.0)",
-    "django-unused-media (>=0.2.2,<0.3.0)"
+    "django-unused-media (>=0.2.2,<0.3.0)",
 ]
 
 
