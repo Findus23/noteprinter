@@ -1,0 +1,44 @@
+[Unit]
+Description=noteprinter daemon
+After=network.target
+Requires=redis-server@rpgnotes.service
+
+[Service]
+User=noteprinter
+Group=noteprinter
+RuntimeDirectory=noteprinter
+StateDirectory=noteprinter
+CacheDirectory=noteprinter
+Environment="PYTHONPYCACHEPREFIX=/var/cache/noteprinter/pycache/"
+WorkingDirectory=/srv/server/noteprinter/backend
+ExecStart=/srv/venv/noteprinter/bin/daphne noteprinter.asgi:application --proxy-headers -u /run/noteprinter/daphne.sock
+KillMode=mixed
+TimeoutStopSec=5
+PrivateTmp=true
+Restart=always
+
+
+
+NoNewPrivileges=true
+RestrictNamespaces=uts ipc pid user cgroup
+ProtectSystem=strict
+PrivateDevices=true
+ProtectHome=true
+PrivateUsers=true
+RestrictNamespaces=true
+CapabilityBoundingSet=~CAP_SYS_ADMIN
+ProtectClock=true
+ProtectControlGroups=true
+ProtectKernelLogs=true
+ProtectKernelModules=true
+ProtectKernelTunables=true
+ProtectProc=invisible
+ProtectSystem=full
+RestrictSUIDSGID=true
+RestrictRealtime=true
+RemoveIPC=true
+
+
+[Install]
+WantedBy=multi-user.target
+
