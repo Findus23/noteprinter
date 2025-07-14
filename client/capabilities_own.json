@@ -352,6 +352,7 @@
         }
     },
     "profiles": {
+        "default": {},
         "ODP333": {
             "codePages": {
                 "0": "CP437",

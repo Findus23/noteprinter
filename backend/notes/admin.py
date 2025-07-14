@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from notes.models import Note, NoteImage
+from notes.models import Note, NoteImage, APIToken
 
 
 class NoteImageInline(admin.StackedInline):
@@ -20,3 +20,5 @@ class NoteAdmin(admin.ModelAdmin):
 admin.site.register(Note, NoteAdmin)
 
 admin.site.register(NoteImage)
+
+admin.site.register(APIToken)
