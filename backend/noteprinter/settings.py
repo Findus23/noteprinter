@@ -30,7 +30,7 @@ ASGI_APPLICATION = "noteprinter.asgi.application"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
-ALLOWED_HOSTS = ["notes.lw1.at"]
+ALLOWED_HOSTS = ["notes.lw1.at","127.0.0.1","localhost"]
 
 # Application definition
 
@@ -157,6 +157,8 @@ STATIC_ROOT = STORAGE_DIR / "static"
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
+if DEBUG:
+    STATIC_ROOT= BASE_DIR/"public_static"
 
 MEDIA_ROOT = STORAGE_DIR / "media"
 MEDIA_URL = "/media/"

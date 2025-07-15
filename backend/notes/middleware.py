@@ -1,4 +1,3 @@
-from asgiref.sync import sync_to_async
 from channels.db import database_sync_to_async
 from channels.middleware import BaseMiddleware
 from django.core.cache import cache
@@ -6,7 +5,6 @@ from django.http import JsonResponse
 from django.utils.deprecation import MiddlewareMixin
 
 from notes.models import APIToken
-
 
 
 class TokenAuthMiddleware(MiddlewareMixin):
@@ -41,6 +39,7 @@ def _get_user_by_token(key):
     except APIToken.DoesNotExist:
         return None
 
+
 class TokenAuthMiddlewareAsync(BaseMiddleware):
     async def __call__(self, scope, receive, send):
         # Copy scope to stop changes going upstream
@@ -48,8 +47,8 @@ class TokenAuthMiddlewareAsync(BaseMiddleware):
         # Run the inner application along with the scope
         if scope.get("user") and scope["user"].is_authenticated:
             return await self.inner(scope, receive, send)
-        headers = { name.decode().lower(): value.decode()
-                    for name, value in scope.get("headers", []) }
+        headers = {name.decode().lower(): value.decode()
+                   for name, value in scope.get("headers", [])}
 
         auth = headers.get("authorization", "")
         if auth.startswith("Token "):
@@ -61,7 +60,7 @@ class TokenAuthMiddlewareAsync(BaseMiddleware):
             cache_key = f"{CACHE_PREFIX}{key}"
             user = cache.get(cache_key)
             if user is None:
-                user =  await _get_user_by_token(key)
+                user = await _get_user_by_token(key)
                 if user:
                     cache.set(cache_key, user, CACHE_TTL)
 

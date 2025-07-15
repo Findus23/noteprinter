@@ -21,7 +21,7 @@ from channels.security.websocket import AllowedHostsOriginValidator
 
 from notes.consumers import PrintConsumer, RenderConsumer
 from notes.routing import websocket_urlpatterns
-from notes.middleware import TokenAuthMiddleware, TokenAuthMiddlewareAsync
+from notes.middleware import TokenAuthMiddlewareAsync
 
 
 application = ProtocolTypeRouter({

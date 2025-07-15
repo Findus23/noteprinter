@@ -27,9 +27,7 @@ http_client = httpx.AsyncClient()
 printer = OwnPrinter()
 
 
-async def consume(message):
-    print(message)
-    note_id = message["note_id"]
+async def print_note(note_id: int):
     r = await http_client.get(f"{http_host}/note/{note_id}", headers=headers)
     r.raise_for_status()
     data = r.json()
@@ -42,13 +40,31 @@ async def consume(message):
     printer.print_note(image)
     r = await http_client.post(f"{http_host}/note/{note_id}/printed", data={"printed": True}, headers=headers)
     r.raise_for_status()
-    print("finished", message)
+
+
+async def consume(message):
+    print(message)
+    note_id = message["note_id"]
+    await print_note(note_id)
+
+
+async def get_unprinted() -> list[int]:
+    r = await http_client.get(f"{http_host}/unprinted", headers=headers)
+    r.raise_for_status()
+    data = r.json()
+    note_ids=data["note_ids"]
+    print(note_ids)
+    return note_ids
 
 
 async def main():
     async for websocket in connect(uri, origin=origin, additional_headers=headers):
         print(websocket.request.headers)
         print(websocket.response.headers)
+        print("catching up with unprinted notes")
+        for note_id in await get_unprinted():
+            await print_note(note_id)
+        print("caught up")
         try:
             async for message in websocket:
                 await consume(json.loads(message))

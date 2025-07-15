@@ -1,7 +1,8 @@
 from base64 import b64encode
 
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
+from django.core import serializers
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
@@ -55,4 +56,12 @@ def set_printed(request, note_id):
 @login_required
 def my_token_view(request):
     token, _ = APIToken.objects.get_or_create(user=request.user)
-    return JsonResponse({ "token": token.key })
+    return JsonResponse({"token": token.key})
+
+
+@login_required
+@csrf_exempt
+def get_unprinted(request):
+    notes = Note.objects.filter(printed_at=None).order_by("created_at")
+    note_ids = [note.id for note in notes]
+    return JsonResponse({"note_ids": note_ids})
