@@ -168,6 +168,17 @@ test = ["jaraco.test (>=5.4)", "pytest (>=6,!=8.1.*)", "zipp (>=3.17)"]
 type = ["pytest-mypy"]
 
 [[package]]
+name = "phue"
+version = "1.1"
+description = "A Philips Hue Python library"
+optional = false
+python-versions = "*"
+groups = ["main"]
+files = [
+    {file = "phue-1.1.tar.gz", hash = "sha256:61facc991a2ead1d727df8513d06ce089033489b6dca09be093db24f7cdb8874"},
+]
+
+[[package]]
 name = "pillow"
 version = "11.3.0"
 description = "Python Imaging Library (Fork)"
@@ -568,4 +579,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.13"
-content-hash = "b56986ddf4b83388fd1b1f25dc2640cbb689d092f76dd31d72e2040269f34a81"
+content-hash = "597d59f342d82dab34aaea6690bf3d195f6b28a3ebab251aee22f0ff1b2d7f42"

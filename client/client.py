@@ -1,12 +1,14 @@
 import asyncio
 import io
 import json
+import time
 from base64 import b64decode
 
 import httpx
 from PIL import Image
 from websockets import connect, ConnectionClosed, Origin
 
+from power_switch import get_switch_status, turn_power_off, turn_power_on
 from printer import OwnPrinter
 from secret import token
 
@@ -26,8 +28,25 @@ origin = Origin(http_host)
 http_client = httpx.AsyncClient()
 printer = OwnPrinter()
 
+last_note_printed = time.monotonic()
+switch_is_on = get_switch_status()
+
 
 async def print_note(note_id: int):
+    global last_note_printed, switch_is_on, printer
+    last_note_printed = time.monotonic()
+    if not switch_is_on:
+        turn_power_on()
+        switch_is_on = True
+        printer_waits = 0
+        while not printer.check_online():
+            printer_waits += 1
+            print("waiting for printer to turn on")
+            await asyncio.sleep(1)
+            printer = OwnPrinter()
+            if printer_waits > 100:
+                raise RuntimeError("printer didn't turn on")
+
     r = await http_client.get(f"{http_host}/note/{note_id}", headers=headers)
     r.raise_for_status()
     data = r.json()
@@ -37,6 +56,7 @@ async def print_note(note_id: int):
         return
     image = Image.open(io.BytesIO(b64decode(data["image"])))
     # await asyncio.sleep(10)
+    assert printer.is_online()
     printer.print_note(image)
     r = await http_client.post(f"{http_host}/note/{note_id}/printed", data={"printed": True}, headers=headers)
     r.raise_for_status()
@@ -52,25 +72,41 @@ async def get_unprinted() -> list[int]:
     r = await http_client.get(f"{http_host}/unprinted", headers=headers)
     r.raise_for_status()
     data = r.json()
-    note_ids=data["note_ids"]
+    note_ids = data["note_ids"]
     print(note_ids)
     return note_ids
 
 
+async def powersave_checker(interval=15, power_off_after=60 * 2):
+    global switch_is_on, last_note_printed
+    while True:
+        age = time.monotonic() - last_note_printed
+        print(f"last print was {age:.2f} seconds ago")
+        if switch_is_on and age > power_off_after:
+            turn_power_off()
+            switch_is_on = False
+        await asyncio.sleep(interval)
+
+
 async def main():
-    async for websocket in connect(uri, origin=origin, additional_headers=headers):
-        print(websocket.request.headers)
-        print(websocket.response.headers)
-        print("catching up with unprinted notes")
-        for note_id in await get_unprinted():
-            await print_note(note_id)
-        print("caught up")
-        try:
-            async for message in websocket:
-                await consume(json.loads(message))
-        except ConnectionClosed:
-            continue
-    await http_client.aclose()
+    checker = asyncio.create_task(powersave_checker())
+
+    try:
+        async for websocket in connect(uri, origin=origin, additional_headers=headers):
+            print(websocket.request.headers)
+            print(websocket.response.headers)
+            print("catching up with unprinted notes")
+            for note_id in await get_unprinted():
+                await print_note(note_id)
+            print("caught up")
+            try:
+                async for message in websocket:
+                    await consume(json.loads(message))
+            except ConnectionClosed:
+                continue
+    finally:
+        checker.cancel()
+        await http_client.aclose()
 
 
 if __name__ == '__main__':
