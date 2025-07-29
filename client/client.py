@@ -29,15 +29,13 @@ http_client = httpx.AsyncClient()
 printer = OwnPrinter()
 
 last_note_printed = time.monotonic()
-switch_is_on = get_switch_status()
 
 
 async def print_note(note_id: int):
-    global last_note_printed, switch_is_on, printer
+    global last_note_printed, printer
     last_note_printed = time.monotonic()
-    if not switch_is_on:
+    if not get_switch_status():
         turn_power_on()
-        switch_is_on = True
         printer_waits = 0
         while not printer.check_online():
             printer_waits += 1
@@ -77,14 +75,13 @@ async def get_unprinted() -> list[int]:
     return note_ids
 
 
-async def powersave_checker(interval=15, power_off_after=60 * 2):
-    global switch_is_on, last_note_printed
+async def powersave_checker(interval=30, power_off_after=60 * 2):
+    global last_note_printed
     while True:
         age = time.monotonic() - last_note_printed
         print(f"last print was {age:.2f} seconds ago")
-        if switch_is_on and age > power_off_after:
+        if age > power_off_after and get_switch_status():
             turn_power_off()
-            switch_is_on = False
         await asyncio.sleep(interval)
 
 
