@@ -4,6 +4,7 @@
 \usepackage{fontspec}
 \usepackage{microtype}
 \usepackage[T1]{fontenc}
+\usepackage{ragged2e}
 
 
 \setmainfont{Inter}[
@@ -18,17 +19,11 @@
 
 
 \begin{document}
-\centering
-\rule{0pt}{0pt}
-{
-\Huge\bfseries
-\VAR{note.text}
-}
+\Centering
+\setlength{\parskip}{0.25\baselineskip}
+\fontsize{24}{25}\selectfont
+\bfseries
 
-%% \\[1em]
-%% \LARGE A paragraph of text using InterRegular—with ligatures like ffi, fl, fi 1/20 and proper kerning.\\[1em]
-%% \framebox[\linewidth][c]{\parbox{0.9\linewidth}{
-%%   Text inside a box, also wrapped and centered.
-%% }}
+\VAR{note.text}
 
 \end{document}
