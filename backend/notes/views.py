@@ -1,24 +1,13 @@
 from base64 import b64encode
 
 from django.contrib.auth.decorators import login_required
-from django.core import serializers
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse
 from django.shortcuts import render
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
 from notes.models import Note, APIToken
-
-
-@login_required
-def index(request):
-    return render(request, "notes/index.html")
-
-
-# @login_required
-def room(request, room_name):
-    return render(request, "notes/room.html", {"room_name": room_name})
 
 
 @login_required
