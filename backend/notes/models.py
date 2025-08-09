@@ -4,7 +4,7 @@ import binascii
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from django.conf import settings
-from django.db import models
+from django.db import models, transaction
 from django.utils.html import format_html
 
 
@@ -21,17 +21,21 @@ class Note(models.Model):
     def save(self, *args, **kwargs):
         skip_notify = kwargs.pop("skip_notify", False)
         super().save(*args, **kwargs)
+        conn = transaction.get_connection()
+        print(conn.in_atomic_block)
         if skip_notify:
             return
-        channel_layer = get_channel_layer()
-        async_to_sync(channel_layer.group_send)("saves", {"type": "forward.edit", "message": f"hello {self.text}"})
-        async_to_sync(channel_layer.send)(
-            "render-note",
-            {
-                "type": "render",
-                "note_id": self.id,
-            },
-        )
+        def notify():
+            channel_layer = get_channel_layer()
+            async_to_sync(channel_layer.group_send)("saves", {"type": "forward.edit", "message": f"hello {self.text}"})
+            async_to_sync(channel_layer.send)(
+                "render-note",
+                {
+                    "type": "render",
+                    "note_id": self.id,
+                },
+            )
+        transaction.on_commit(notify)
 
 
 class NoteImage(models.Model):
