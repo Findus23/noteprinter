@@ -2,17 +2,45 @@ from base64 import b64encode
 
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
+from notes.forms import NoteForm
 from notes.models import Note, APIToken
 
 
 @login_required
 def viewedits(request):
     return render(request, "notes/viewedits.html")
+
+
+@login_required
+def main(request):
+    if request.method == "POST":
+        form = NoteForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("main")
+    else:
+        form = NoteForm()
+
+    notes = Note.objects.all().order_by("-created_at")[:100]
+
+    return render(request, "notes/main.html", {
+        "notes": notes,
+        "form": form,
+    })
+
+
+@login_required
+@require_POST
+def add_note(request):
+    form = NoteForm(request.POST)
+    if form.is_valid():
+        form.save()
+        return redirect("main")
 
 
 @login_required

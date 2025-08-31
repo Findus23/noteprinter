@@ -7,6 +7,6 @@ from notes.render_image import NoteRenderer
 class Command(BaseCommand):
 
     def handle(self, *args, **options):
-        note = Note.objects.first()
+        note = Note.objects.last()
         nr = NoteRenderer(note)
         nr.render_note()

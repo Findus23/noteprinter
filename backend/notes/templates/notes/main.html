@@ -1,0 +1,57 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="{% static 'libs/bootstrap.min.css' %}">
+    <style>
+        .card {
+            margin-bottom: 1em;
+            border-width: 3px;
+        }
+
+        .status-printed {
+            border-color: #eeeeee;
+        }
+
+        .status-saved {
+            border-color: #ff9ea8;
+        }
+
+        .status-converted {
+            border-color: #ffe494;
+        }
+
+        #add-new-note {
+            margin: 1rem auto;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <div id="add-new-note" class="mb-3">
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.text }}
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+
+    </div>
+
+    {% for note in notes %}
+        <div class="card status-{{ note.status }}">
+            <div class="card-body">
+                <h5 class="card-title">{{ note.text }}</h5>
+                {% if note.status != "saved" %}
+<img alt="{{ note.text }}" class="img-fluid" src="{{ note.image.image.url }}">
+                {% endif %}
+            </div>
+        </div>
+    {% endfor %}
+    <!-- Content here -->
+</div>
+</body>
+</html>

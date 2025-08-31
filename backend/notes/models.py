@@ -25,6 +25,7 @@ class Note(models.Model):
         print(conn.in_atomic_block)
         if skip_notify:
             return
+
         def notify():
             channel_layer = get_channel_layer()
             async_to_sync(channel_layer.group_send)("saves", {"type": "forward.edit", "message": f"hello {self.text}"})
@@ -35,7 +36,19 @@ class Note(models.Model):
                     "note_id": self.id,
                 },
             )
+
         transaction.on_commit(notify)
+
+    @property
+    def status(self):
+        if self.printed_at is not None:
+            return "printed"
+        try:
+            if self.image is not None:
+                return "converted"
+        except Note.image.RelatedObjectDoesNotExist:
+            pass
+        return "saved"
 
 
 class NoteImage(models.Model):
