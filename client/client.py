@@ -1,6 +1,7 @@
 import asyncio
 import io
 import json
+import socket
 import time
 from base64 import b64decode
 
@@ -81,7 +82,10 @@ async def powersave_checker(interval=30, power_off_after=60 * 2):
         age = time.monotonic() - last_note_printed
         print(f"last print was {age:.2f} seconds ago")
         if age > power_off_after and get_switch_status():
-            turn_power_off()
+            try:
+                turn_power_off()
+            except (OSError, socket.gaierror) as e:
+                print(f"Network error: {e!r}")
         await asyncio.sleep(interval)
 
 
