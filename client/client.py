@@ -57,7 +57,9 @@ async def print_note(note_id: int):
     # await asyncio.sleep(10)
     assert printer.is_online()
     printer.print_note(image)
-    r = await http_client.post(f"{http_host}/note/{note_id}/printed", data={"printed": True}, headers=headers)
+    r = await http_client.post(
+        f"{http_host}/note/{note_id}/printed", data={"printed": True}, headers=headers
+    )
     r.raise_for_status()
 
 
@@ -79,13 +81,14 @@ async def get_unprinted() -> list[int]:
 async def powersave_checker(interval=30, power_off_after=60 * 2):
     global last_note_printed
     while True:
-        age = time.monotonic() - last_note_printed
-        print(f"last print was {age:.2f} seconds ago")
-        if age > power_off_after and get_switch_status():
-            try:
+        try:
+            status = get_switch_status()
+            age = time.monotonic() - last_note_printed
+            print(f"last print was {age:.2f} seconds ago; {power_off_after}; {status}")
+            if age > power_off_after and status:
                 turn_power_off()
-            except (OSError, socket.gaierror) as e:
-                print(f"Network error: {e!r}")
+        except (OSError, socket.gaierror) as e:
+            print(f"Network error: {e!r}")
         await asyncio.sleep(interval)
 
 
@@ -110,5 +113,5 @@ async def main():
         await http_client.aclose()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     asyncio.run(main(), debug=True)
