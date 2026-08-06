@@ -10,7 +10,7 @@ requires-python = ">=3.12"
 dependencies = [
     "django (>=6.0.0,<7.0.0)",
     "django-bootstrap5 (>=26.0,<27.0)",
-    "django-debug-toolbar (>=6.0.0,<7.0.0)",
+    "django-debug-toolbar (>=7.0.0,<8.0.0)",
     "channels[daphne] (>=4.2.2,<5.0.0)",
     "channels-redis (>=4.2.1,<5.0.0)",
     "jinja2 (>=3.1.6,<4.0.0)",
